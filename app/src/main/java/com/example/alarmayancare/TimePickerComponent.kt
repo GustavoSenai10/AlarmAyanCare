@@ -1,3 +1,6 @@
+package com.example.alarmayancare
+
+
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -22,63 +25,42 @@ fun TimePicker(
     context: Context
 ) {
     val currentTime = selectedTime.value
-    val hourOfDay = currentTime.get(Calendar.HOUR_OF_DAY)
-    val minute = currentTime.get(Calendar.MINUTE)
-
-    var isTimePickerVisible by remember { mutableStateOf(false) }
-
-    if (isTimePickerVisible) {
-        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
-            selectedTime.value.set(Calendar.HOUR_OF_DAY, hour)
-            selectedTime.value.set(Calendar.MINUTE, min)
-            isTimePickerVisible = false
-
-            // Agora, vamos comparar o horário atual com o horário selecionado.
-            val currentCalendar = Calendar.getInstance()
-            if (selectedTime.value.after(currentCalendar)) {
-                // O horário selecionado é no futuro, então configuramos o alarme e notificação.
-                configureAlarmAndNotification(context, selectedTime.value)
-            }
-        }
-
-        TimePickerDialog(
-            context,
-            timeSetListener,
-            hourOfDay,
-            minute,
-            true
-        ).show()
-    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Text(text = "Horário Selecionado: ${formatTime(currentTime)}")
 
         Button(onClick = {
-            isTimePickerVisible = true
+
+            // Configurar o alarme e notificação para o horário selecionado.
+            configureAlarmAndNotification(context, selectedTime.value)
         }) {
             Text(text = "Selecionar Horário")
         }
     }
 }
 
+// Função para formatar o horário no formato "HH:mm"
 private fun formatTime(calendar: Calendar): String {
     val sdf = SimpleDateFormat("HH:mm")
     return sdf.format(calendar.time)
 }
 
+// Função para configurar o alarme e notificação
 private fun configureAlarmAndNotification(context: Context, selectedTime: Calendar) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val intent = Intent(context, AlarmReceiver::class.java)
     val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     val timeInMillis = selectedTime.timeInMillis
 
+    // Configurar o alarme para o horário selecionado
     alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
 
+    // Mostrar a notificação com um título e descrição
     val notificationHelper = NotificationHelper
     notificationHelper.showNotification(context, "Título da Notificação", "Descrição da Notificação")
 }
+
