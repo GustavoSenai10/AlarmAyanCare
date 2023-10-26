@@ -3,6 +3,7 @@ package com.example.alarmayancare
 
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,9 +54,11 @@ fun Alarme() {
         verticalArrangement = Arrangement.Center
     ) {
 
-        TimePicker(selectedTime = selectedTime, context = context)
 
-        Text(text = "O horario selecionado é :${selectedTime}")
+
+        TimePicker()
+
+
     }
 }
 

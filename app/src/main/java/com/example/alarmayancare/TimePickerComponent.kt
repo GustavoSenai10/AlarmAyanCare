@@ -1,11 +1,11 @@
 package com.example.alarmayancare
 
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
-import android.content.Intent
+import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,53 +14,76 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.alarmayancare.service.AlarmReceiver
+import androidx.compose.ui.platform.LocalContext
 import com.example.alarmayancare.service.NotificationHelper
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
 @Composable
-fun TimePicker(
-    selectedTime: MutableState<Calendar>,
-    context: Context
-) {
+fun TimePicker() {
+    val context = LocalContext.current
+    val selectedTime = remember { mutableStateOf(Calendar.getInstance()) }
     val currentTime = selectedTime.value
+    val hourOfDay = currentTime.get(Calendar.HOUR_OF_DAY)
+    val minute = currentTime.get(Calendar.MINUTE)
+    var isTimePickerVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Horário Selecionado: ${formatTime(currentTime)}")
 
         Button(onClick = {
-
-            // Configurar o alarme e notificação para o horário selecionado.
-            configureAlarmAndNotification(context, selectedTime.value)
+            isTimePickerVisible = true
         }) {
             Text(text = "Selecionar Horário")
+        }
+
+        if (isTimePickerVisible) {
+            val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                selectedTime.value.set(Calendar.HOUR_OF_DAY, hour)
+                selectedTime.value.set(Calendar.MINUTE, min)
+                isTimePickerVisible = false
+
+                // Comparar o horário atual com o horário selecionado.
+                val currentCalendar = Calendar.getInstance()
+                if (selectedTime.value.after(currentCalendar)) {
+                    // O horário selecionado é no futuro.
+                    // Calcular o atraso até o horário selecionado.
+                    val delayMillis = selectedTime.value.timeInMillis - currentCalendar.timeInMillis
+
+                    // Usar um Handler para agendar a notificação após o atraso.
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        configureNotification(context)
+                    }, delayMillis)
+                }
+            }
+
+            // Mostrar o TimePickerDialog para selecionar o horário.
+            TimePickerDialog(
+                context,
+                timeSetListener,
+                hourOfDay,
+                minute,
+                true
+            ).show()
         }
     }
 }
 
-// Função para formatar o horário no formato "HH:mm"
 private fun formatTime(calendar: Calendar): String {
     val sdf = SimpleDateFormat("HH:mm")
     return sdf.format(calendar.time)
 }
 
-// Função para configurar o alarme e notificação
-private fun configureAlarmAndNotification(context: Context, selectedTime: Calendar) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val intent = Intent(context, AlarmReceiver::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-    val timeInMillis = selectedTime.timeInMillis
-
-    // Configurar o alarme para o horário selecionado
-    alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
-
-    // Mostrar a notificação com um título e descrição
+private fun configureNotification(context: Context) {
     val notificationHelper = NotificationHelper
     notificationHelper.showNotification(context, "Título da Notificação", "Descrição da Notificação")
-}
 
+    // Iniciar a reprodução de som
+    val mediaPlayer = MediaPlayer.create(context, R.raw.lofi_study_112191)
+    mediaPlayer.isLooping = true // Defina como true se desejar que o som seja repetido
+    mediaPlayer.start()
+}
