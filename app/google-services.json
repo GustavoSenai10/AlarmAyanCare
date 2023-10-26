@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "723762003021",
+    "project_id": "ayancarefirebaseteste",
+    "storage_bucket": "ayancarefirebaseteste.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723762003021:android:d9c46c3b781113443a7004",
+        "android_client_info": {
+          "package_name": "com.example.alarmayancare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg4HvSeRxly6HRrU1xm_Zjx3Xu32cWiXo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723762003021:android:7f6a15f01adc703d3a7004",
+        "android_client_info": {
+          "package_name": "com.example.ayancarefirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg4HvSeRxly6HRrU1xm_Zjx3Xu32cWiXo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -38,6 +38,20 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".service.DelayReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="DELAY_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".service.CancelReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="CANCEL_ACTION" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
