@@ -1,8 +1,11 @@
 package com.example.alarmayancare
 
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
@@ -11,13 +14,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.example.alarmayancare.service.NotificationHelper
+import com.example.alarmayancare.service.Alarm
 import java.text.SimpleDateFormat
 import java.util.Calendar
+
 
 @Composable
 fun TimePicker() {
@@ -73,17 +81,17 @@ fun TimePicker() {
     }
 }
 
+
 private fun formatTime(calendar: Calendar): String {
     val sdf = SimpleDateFormat("HH:mm")
     return sdf.format(calendar.time)
 }
 
 private fun configureNotification(context: Context) {
-    val notificationHelper = NotificationHelper
-    notificationHelper.showNotification(context, "Título da Notificação", "Descrição da Notificação")
+    val timeSec = System.currentTimeMillis()
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context, Alarm::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context,0,intent, PendingIntent.FLAG_IMMUTABLE)
+    alarmManager.set(AlarmManager.RTC_WAKEUP,timeSec,pendingIntent)
 
-    // Iniciar a reprodução de som
-    val mediaPlayer = MediaPlayer.create(context, R.raw.lofi_study_112191)
-    mediaPlayer.isLooping = true // Defina como true se desejar que o som seja repetido
-    mediaPlayer.start()
 }
